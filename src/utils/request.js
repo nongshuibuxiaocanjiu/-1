@@ -2,12 +2,27 @@
 import axios from 'axios'
 import store from '@/store'
 import { Message } from 'element-ui'
+import { getTokenTime } from '@/utils/auth'
+import router from '@/router'
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API,
 }) // 创建一个axios的实例
-service.interceptors.request.use((config) => {
+function setTimeout() {
+  const currentTime = Date.now()
+  const tokenTime = getTokenTime()
+  const timeout = 2 * 60 * 60 * 1000
+  return currentTime - tokenTime > timeout
+}
+service.interceptors.request.use(async (config) => {
   if (store.state.user.token) {
-    config.headers.Authorization = 'Bearer ' + store.state.user.token
+    if (setTimeout()) {
+      // console.log('跳到登录页')
+      await store.dispatch('user/logout')
+      router.push('/login')
+      return Promise.reject(new Error('登录过期'))
+    } else {
+      config.headers.Authorization = 'Bearer ' + store.state.user.token
+    }
   }
   return config
 }) // 请求拦截器
@@ -19,10 +34,16 @@ service.interceptors.response.use(
       return data
     }
     Message.error(message)
-    return Pormise.reject(new Error(message))
+    return Promise.reject(new Error(message))
   },
-  function (error) {
-    Message.error('系统错误')
+  async function (error) {
+    if (error?.response?.status === 401) {
+      Message.error('登录过期')
+      await store.dispatch('user/logout')
+      router.push('/login')
+    } else {
+      Message.error(error.message)
+    }
     // 对响应错误做点什么
     return Promise.reject(error)
   },
