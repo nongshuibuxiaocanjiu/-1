@@ -3,7 +3,7 @@
     <div class="app-container">
       <el-tabs v-model="activeName" >
     <el-tab-pane label="角色管理" name="first">
-
+      <el-button type="primary" disabled>主要按钮</el-button>
       <!-- 表单 -->
       <el-table
       :data="tableData"
@@ -25,7 +25,7 @@
     </el-table>
       <!-- /表单 -->
     </el-tab-pane>
-    
+
     <el-tab-pane label="公司信息" name="second">配置管理</el-tab-pane>
     
   </el-tabs>
