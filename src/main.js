@@ -5,6 +5,7 @@ import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import locale from 'element-ui/lib/locale/lang/en' // lang i18n
+import dayjs from 'dayjs'
 
 import '@/styles/index.scss' // global css
 
@@ -14,9 +15,22 @@ import router from './router'
 
 import '@/icons' // icon
 import '@/permission' // permission control
-
+// 自定义指令
 import * as directives from '@/directives'
-console.log(directives)
+// 组件封装
+import components from '@/components'
+// 过滤器封装
+import * as filters from '@/filters'
+// 统一注册过滤器
+for (let key in filters) {
+  Vue.filter(key, filters[key])
+}
+// 自定义指令
+for (let key in directives) {
+  Vue.directive(key, directives[key])
+}
+// 统一注册组件封装
+Vue.use(components)
 
 /**
  * If you don't want to use mock-server
@@ -38,10 +52,10 @@ Vue.use(ElementUI, { locale })
 
 Vue.config.productionTip = false
 
-// 自定义指令
-for (let key in directives) {
-  Vue.directive(key, directives[key])
-}
+// // 时间过滤器
+// Vue.filter('formatTime', (val) => {
+//   return dayjs(val).format('YYYY-MM-DD')
+// })
 
 new Vue({
   el: '#app',
