@@ -1,3 +1,4 @@
+import store from '@/store'
 // 定义自定义指令
 export const imgError = {
   //  当绑定得元素插入到DOM中时 触发
@@ -20,6 +21,15 @@ export const imgError = {
       el.onerror = function () {
         el.src = value
       }
+    }
+  },
+}
+
+export const isHas = {
+  inserted(el, binding) {
+    const has = store.state.permission.points.includes(binding.value)
+    if (!has) {
+      el.remove()
     }
   },
 }

@@ -8,12 +8,18 @@
             size="small"
             type="warning"
             @click="$router.push('/import')"
+            
+            v-isHas="point.employees.import"  
             >导入</el-button
           >
           <el-button size="small" type="danger" @click="excelPort"
             >导出</el-button
           >
-          <el-button size="small" type="primary" @click="addShow"
+          <el-button
+            size="small"
+            type="primary"
+            @click="addShow"
+            v-if="isHas(point.employees.add)"
             >新增员工</el-button
           >
         </template>
@@ -60,12 +66,23 @@
           </el-table-column>
           <el-table-column label="操作" sortable="" fixed="right" width="280">
             <template slot-scope="{ row }">
-              <el-button type="text" size="small" @click="$router.push('/employees/detail/' + row.id)">查看</el-button>
+              <el-button
+                type="text"
+                size="small"
+                @click="$router.push('/employees/detail/' + row.id)"
+                >查看</el-button
+              >
               <el-button type="text" size="small">转正</el-button>
               <el-button type="text" size="small">调岗</el-button>
               <el-button type="text" size="small">离职</el-button>
-              <el-button type="text" size="small">角色</el-button>
-              <el-button type="text" size="small" @click="onRemove(row.id)"
+              <el-button type="text" size="small" @click="onRoles(row.id)"
+                >角色</el-button
+              >
+              <el-button
+                type="text"
+                size="small"
+                @click="onRemove(row.id)"
+                v-if="isHas(point.employees.del)"
                 >删除</el-button
               >
             </template>
@@ -86,11 +103,15 @@
           />
         </el-row>
       </el-card>
+      <!-- 二维码 -->
       <el-dialog :visible.sync="showErCodeDialog" title="头像二维码">
-        <canvas id="canvas" ></canvas>
+        <canvas id="canvas"></canvas>
       </el-dialog>
     </div>
     <addEmployees :visible.sync="showAdd" @add-success="getEmployeesList" />
+
+    <!-- 权限 -->
+    <AssignRole :visible.sync="visible" :employessId="currentEmployeesId" />
   </div>
 </template>
 
@@ -98,13 +119,16 @@
 import { getEmployeesInfoApi, delEmployee } from '@/api/employees'
 import employees from '@/constant/constant/employees'
 import addEmployees from './commpoments/addEmployees.vue'
+import AssignRole from './commpoments/assign-role.vue'
+import Mixinpermission from '@/mixins/permission'
 import QRcode from 'qrcode'
-const  {exportExcelMapPath, hireType}  = employees
+const { exportExcelMapPath, hireType } = employees
 export default {
   name: 'Employees',
   data() {
     return {
       Employees: [],
+      visible: false,
       pages: {
         page: 1,
         size: 10,
@@ -112,12 +136,14 @@ export default {
       total: 0,
       showAdd: false,
       showErCodeDialog: false,
+      currentEmployeesId: '',
     }
   },
   components: {
     addEmployees,
+    AssignRole,
   },
-
+  mixins: [Mixinpermission],
   created() {
     this.getEmployees()
   },
@@ -159,19 +185,19 @@ export default {
       // console.log(11);
       const { export_json_to_excel } = await import('@/vendor/Export2Excel')
       const { rows } = await getEmployeesInfoApi({
-        page:1,
-        size:this.total
+        page: 1,
+        size: this.total,
       })
-      const header  =Object.keys(exportExcelMapPath)
-      const data = rows.map(item=>{
-        return header.map(h=> {
-          if( h=== '聘用形式') {
-            const findItem = hireType.find(hire =>{
+      const header = Object.keys(exportExcelMapPath)
+      const data = rows.map((item) => {
+        return header.map((h) => {
+          if (h === '聘用形式') {
+            const findItem = hireType.find((hire) => {
               return hire.id === item[exportExcelMapPath[h]]
             })
-            return findItem ? findItem.value :'未知'
+            return findItem ? findItem.value : '未知'
           } else {
-           return item[exportExcelMapPath[h]]
+            return item[exportExcelMapPath[h]]
           }
         })
       })
@@ -186,15 +212,20 @@ export default {
     },
     // 二维码弹窗
     showImgDialog(staffPhoto) {
-      if(!staffPhoto) {
-       return this.$message.error('该用户未设置头像')
+      if (!staffPhoto) {
+        return this.$message.error('该用户未设置头像')
       }
       this.showErCodeDialog = true
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         const canvas = document.getElementById('canvas')
-        QRcode.toCanvas(canvas,staffPhoto)
+        QRcode.toCanvas(canvas, staffPhoto)
       })
-    }
+    },
+    onRoles(id) {
+      // console.log(id);
+      this.currentEmployeesId = id
+      this.visible = true
+    },
   },
 }
 </script>

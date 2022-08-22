@@ -46,7 +46,7 @@ export const constantRoutes = [
   { path: '*', redirect: '/404', hidden: true },
 ]
 
-const asyncRouter = [
+export const asyncRouter = [
   approvalsRouter,
   departmentsRouter,
   employeesRouter,
@@ -62,7 +62,7 @@ const createRouter = () =>
   new Router({
     // mode: 'history', // require service support
     scrollBehavior: () => ({ y: 0 }),
-    routes: [...constantRoutes, ...asyncRouter],
+    routes: [...constantRoutes],
   })
 
 const router = createRouter()
