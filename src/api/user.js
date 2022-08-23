@@ -1,9 +1,9 @@
 import request from '@/utils/request'
 
 /**
- *
+ * 登录请求
  * @param {Object} data password mobile
- * @returns Pormise
+ * @returns promise
  */
 export function login(data) {
   return request({
@@ -12,23 +12,23 @@ export function login(data) {
     data,
   })
 }
-
 /**
  * 获取用户信息
- * @returns Pormise
+ * @returns promise
  */
-export function getuserInfoApi() {
+export function getUserInfoApi() {
   return request({
     url: '/sys/profile',
     method: 'POST',
   })
 }
+
 /**
- * 获取员工详情
- * @param {*} id 
- * @returns 
+ * 根据用户id获取员工详情数据
+ * @param {String} id 用户id
+ * @returns promise
  */
-export function getuserDetail(id) {
+export function getUserDetail(id) {
   return request({
     url: '/sys/user/' + id,
   })

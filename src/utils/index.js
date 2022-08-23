@@ -119,16 +119,17 @@ export function param2Obj(url) {
 }
 
 /**
- * 利用递归去处理数据
- * @param {*} data //要处理得数据
- * @param {*} pid //父级id
- * @returns 树形数组
+ * 将list数据处理为treeList
+ * @param {*} data 要处理的数据
+ * @param {*} pid 父级id
+ * @returns treeList
  */
-export function transListTree(data, pid) {
+export function transListToTree(data, pid) {
   const arr = []
   data.forEach((item) => {
     if (item.pid === pid) {
-      const children = transListTree(data, item.id)
+      // 当前: item 就是1级数据 item.id
+      const children = transListToTree(data, item.id)
       if (children.length) {
         item.children = children
       }

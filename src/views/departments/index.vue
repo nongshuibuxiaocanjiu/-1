@@ -1,62 +1,74 @@
 <template>
   <div class="dashboard-container">
     <div class="app-container">
-      <el-card class="box-card" v-loading="loading">
-        <treeTools
-          :treeNode="{ name: '传值教育', manager: '负责人' }"
-          :isRoot="true"
-          @add="showAddDept"
-        />
-
-        <el-tree :data="departs" :props="defaultProps">
+      <el-card v-loading="loading" class="box-card">
+        <!-- 头部 -->
+        <tree-tools @add="showAddDept" :isRoot="true" :treeNode="company" />
+        <!-- 树形 -->
+        <el-tree :data="treeData" :props="defaultProps" default-expand-all>
+          <!-- 这是作用域插槽 -->
+          <!-- v-slot 获取组件内部slot提供的数据 -->
           <template v-slot="{ data }">
-            <treeTools :treeNode="data" @remove="getDespts" @add="showAddDept" @edit="showEdit" />
+            <tree-tools
+              @add="showAddDept"
+              @remove="loadDepts"
+              @edit="showEdit"
+              :treeNode="data"
+            />
           </template>
         </el-tree>
       </el-card>
-
-      <AddDept ref="addDept" :visible.sync="dialogVisible" :currentNode="currentNode" @add-success="getDespts"/>
     </div>
+
+    <!-- 添加部门弹层 -->
+    <add-dept
+      ref="addDept"
+      @add-success="loadDepts"
+      :visible.sync="dialogVisible"
+      :currentNode="currentNode"
+    />
   </div>
 </template>
 
 <script>
-import treeTools from './compoments/tree-tools.vue'
-import { getDesptsApi } from '@/api/departments'
-import { transListTree } from '@/utils'
-import AddDept from './compoments/add-dept.vue'
+import TreeTools from './components/tree-tools.vue'
+import { getDeptsApi } from '@/api/departments'
+import { transListToTree } from '@/utils'
+import AddDept from './components/add-dept'
 export default {
   data() {
     return {
-      departs: [
+      treeData: [
         { name: '总裁办', children: [{ name: '董事会' }] },
         { name: '行政部' },
         { name: '人事部' },
       ],
       defaultProps: {
-        label: 'name',
+        label: 'name', // 将data中哪个数据名显示到树形页面中
+        // children: 'child', // 树形默认查找子节点通过childten
       },
+      company: { name: '传智教育', manager: '负责人' },
       dialogVisible: false,
-      currentNode:{},
-      loading:false
+      currentNode: {},
+      loading: false,
     }
   },
+
   components: {
-    treeTools,
-    AddDept
+    TreeTools,
+    AddDept,
   },
 
   created() {
-    this.getDespts()
+    this.loadDepts()
   },
 
   methods: {
-    async getDespts() {
+    async loadDepts() {
       this.loading = true
-      const res = await getDesptsApi()
-      console.log(res)
-      this.departs = transListTree(res.depts, '')
-      this.loading = false 
+      const res = await getDeptsApi()
+      this.treeData = transListToTree(res.depts, '')
+      this.loading = false
     },
     showAddDept(val) {
       this.dialogVisible = true
@@ -65,8 +77,7 @@ export default {
     showEdit(val) {
       this.dialogVisible = true
       this.$refs.addDept.getDeptById(val.id)
-    }
-
+    },
   },
 }
 </script>

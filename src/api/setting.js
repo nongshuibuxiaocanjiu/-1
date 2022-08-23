@@ -1,5 +1,4 @@
 import request from '@/utils/request'
-
 /**
  * 获取公司信息
  * **/

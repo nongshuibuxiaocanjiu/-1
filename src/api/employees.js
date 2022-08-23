@@ -1,17 +1,18 @@
 import request from '@/utils/request'
-// /sys/user/simple
 
+/**
+ * 获取员工列表(简单)
+ * @returns promise
+ */
 export function getEmployeesApi() {
   return request({
     url: '/sys/user/simple',
   })
 }
 
-// 员工列表
-
 /**
  * 获取员工列表
- * @param {*} params
+ * @param {*} params {page, size}
  * @returns
  */
 export function getEmployeesInfoApi(params) {
@@ -42,13 +43,11 @@ export function addEmployee(data) {
     data,
   })
 }
-
 /**
  * 批量导入员工
- * @param {*} data
- * @returns
+ * @param {*} data 员工数组
  */
-export function importEmployee(data) {
+export function importEmployees(data) {
   return request({
     method: 'post',
     url: '/sys/user/batch',
